@@ -59,7 +59,7 @@
 
                 L.geoJSON(geojson, {
                     onEachFeature: onEachFeature,
-                    filter: (feature, layer) => feature.properties.show_on_map,
+
                     pointToLayer: function (feature, latlng) {
                         return L.circleMarker(latlng);
                     },
