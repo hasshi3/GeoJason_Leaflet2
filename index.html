@@ -21,68 +21,57 @@
             layers: [osm]
         });
 
-        function onEachFeature(feature, layer) {
-            if (feature.properties && feature.properties.station_name) {
-                layer.bindPopup(feature.properties.station_name);
-            }
-        }
+        // GitHubのファイルのURL
+        fetch('https://hasshi3.github.io/earthquake_station/sukesan.json')
+            .then(response => response.json())
+            .then(geojson => {
+                console.log("GeoJSON data loaded successfully:", geojson);
 
-        function styles(feature) {
-            switch (feature.geometry.type) {
-                case "Point": return {
-                    radius: 8,
-                    fillColor: "#ff7800",
-                    color: "#000",
-                    weight: 1,
-                    opacity: 1,
-                    fillOpacity: 0.6,
-                };
-                case "LineString": return {
-                    color: "#4f6bdb",
-                    lineCap: 'square',
-                    weight: 5,
-                    opacity: .8
-                };
-                case "Polygon": return {
-                    color: "#34ccea8b",
-                    fillColor: "#ea3483"
-                };
-                default: return {};
-            }
-        }
+                function onEachFeature(feature, layer) {
+                    console.log("Processing feature:", feature);
+                if (feature.properties && feature.properties.station_name) {
+                    layer.bindPopup(feature.properties.station_name);
+                    }
+                }
 
-        // 2つのGeoJSONファイルを読み込むための関数
-        function loadGeoJSON(url) {
-            return fetch(url)
-                .then(response => response.json())
-                .then(geojson => L.geoJSON(geojson, {
+                function styles(feature) {
+                    console.log("Applying styles for feature type:", feature.geometry.type);
+                    switch (feature.geometry.type) {
+                        case "Point": return {
+                            radius: 8,
+                            fillColor: "#ff7800",
+                            color: "#000",
+                            weight: 1,
+                            opacity: 1,
+                            fillOpacity: 0.6,
+                        };
+                        case "LineString": return {
+                            color: "#4f6bdb",
+                            lineCap: 'square',
+                            weight: 5,
+                            opacity: .8
+                        };
+                        case "Polygon": return {
+                            color: "#34ccea8b",
+                            fillColor: "#ea3483"
+                        };
+                        default: return {}; // デフォルトのスタイルを指定
+                    }
+                }
+
+                L.geoJSON(geojson, {
                     onEachFeature: onEachFeature,
                     pointToLayer: function (feature, latlng) {
-                        return L.circleMarker(latlng, styles(feature));
+                        console.log("Creating marker for point:", latlng);
+                        return L.circleMarker(latlng, styles(feature)); // スタイルオプションを追加
                     },
-                    style: styles
-                }));
-        }
-
-        // 2つのGeoJSONファイルを読み込み、それぞれのレイヤーとして追加
-        Promise.all([
-            loadGeoJSON('https://hasshi3.github.io/earthquake_station/stations.geojson'),
-            loadGeoJSON('https://hasshi3.github.io/earthquake_station/sukesan.geojson')
-        ]).then(layers => {
-            const [layer1, layer2] = layers;
-
-            // レイヤーを地図に追加し、レイヤーコントロールを設定
-            var overlayMaps = {
-                "Stations 1": layer1,
-                "Stations 2": layer2
-            };
-
-            L.control.layers(null, overlayMaps).addTo(map);
-
-            // デフォルトで最初のレイヤーを表示
-            layer1.addTo(map);
-        }).catch(error => console.error('Error loading GeoJSON:', error));
+                    style: styles // 追加のスタイルオプションを適用
+                }).addTo(map);
+            })
+            .catch(error => console.error('Error loading GeoJSON:', error));
     </script>
+</body>
+</html>
 </body>
 </html>
 
