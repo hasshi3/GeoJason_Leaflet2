@@ -16,26 +16,18 @@
         });
 
         var map = L.map('myMap', {
-            center: [32.639884, 130.987154],
-            zoom: 8,
+            center: [35.1, 136.9],
+            zoom: 6,
             layers: [osm]
         });
 
-        // GitHubのファイルのURL
-fetch('https://raw.githubusercontent.com/hasshi3/GeoJason_Leaflet2/main/geojson_data.json')
-    .then(response => response.json())
-    .then(geojson => {
-        console.log("GeoJSON data loaded successfully:", geojson);
-
         function onEachFeature(feature, layer) {
-            console.log("Processing feature:", feature);
-            if (feature.properties && feature.properties.name) {
-                layer.bindPopup(feature.properties.name);
+            if (feature.properties && feature.properties.station_name) {
+                layer.bindPopup(feature.properties.station_name);
             }
         }
 
         function styles(feature) {
-            console.log("Applying styles for feature type:", feature.geometry.type);
             switch (feature.geometry.type) {
                 case "Point": return {
                     radius: 8,
@@ -55,21 +47,41 @@ fetch('https://raw.githubusercontent.com/hasshi3/GeoJason_Leaflet2/main/geojson_
                     color: "#34ccea8b",
                     fillColor: "#ea3483"
                 };
+                default: return {};
             }
         }
 
-        L.geoJSON(geojson, {
-            onEachFeature: onEachFeature,
-            pointToLayer: function (feature, latlng) {
-                console.log("Creating marker for point:", latlng);
-                return L.circleMarker(latlng);
-            },
-            style: styles
-        }).addTo(map);
-    })
-    .catch(error => console.error('Error loading GeoJSON:', error));
+        // 2つのGeoJSONファイルを読み込むための関数
+        function loadGeoJSON(url) {
+            return fetch(url)
+                .then(response => response.json())
+                .then(geojson => L.geoJSON(geojson, {
+                    onEachFeature: onEachFeature,
+                    pointToLayer: function (feature, latlng) {
+                        return L.circleMarker(latlng, styles(feature));
+                    },
+                    style: styles
+                }));
+        }
 
+        // 2つのGeoJSONファイルを読み込み、それぞれのレイヤーとして追加
+        Promise.all([
+            loadGeoJSON('https://hasshi3.github.io/earthquake_station/stations.geojson'),
+            loadGeoJSON('https://hasshi3.github.io/earthquake_station/geojson_data.geojson')
+        ]).then(layers => {
+            const [layer1, layer2] = layers;
 
+            // レイヤーを地図に追加し、レイヤーコントロールを設定
+            var overlayMaps = {
+                "Stations 1": layer1,
+                "Stations 2": layer2
+            };
+
+            L.control.layers(null, overlayMaps).addTo(map);
+
+            // デフォルトで最初のレイヤーを表示
+            layer1.addTo(map);
+        }).catch(error => console.error('Error loading GeoJSON:', error));
     </script>
 </body>
 </html>
