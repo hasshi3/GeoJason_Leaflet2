@@ -18,7 +18,7 @@
         var map = L.map('myMap', {
             center: [35.1, 136.9],
             zoom: 6,
-            layers: [osm]
+            layers: [osm] // ベースレイヤーを設定
         });
 
         function onEachFeature(feature, layer) {
@@ -51,7 +51,6 @@
             }
         }
 
-        // 2つのGeoJSONファイルを読み込むための関数
         function loadGeoJSON(url) {
             return fetch(url)
                 .then(response => response.json())
@@ -64,23 +63,24 @@
                 }));
         }
 
-        // 2つのGeoJSONファイルを読み込み、それぞれのレイヤーとして追加
         Promise.all([
             loadGeoJSON('https://hasshi3.github.io/earthquake_station/stations.geojson'),
             loadGeoJSON('https://hasshi3.github.io/earthquake_station/geojson_data.json')
         ]).then(layers => {
             const [layer1, layer2] = layers;
 
-            // レイヤーを地図に追加し、レイヤーコントロールを設定
-            var overlayMaps = {
-                "Stations 1": layer1,
-                "Stations 2": layer2
+            var baseMaps = {
+                "OpenStreetMap": osm
             };
 
-            L.control.layers(null, overlayMaps).addTo(map);
+            var overlayMaps = {
+                "Stations": layer1,
+                "GeoJSON Data": layer2
+            };
 
-            // デフォルトで最初のレイヤーを表示
-            layer1.addTo(map);
+            L.control.layers(baseMaps, overlayMaps, {collapsed: false}).addTo(map); // 修正: collapsed: falseで常に表示
+
+            layer1.addTo(map); // デフォルトで表示するレイヤーを設定
         }).catch(error => console.error('Error loading GeoJSON:', error));
     </script>
 </body>
