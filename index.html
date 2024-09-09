@@ -19,12 +19,6 @@
     <!-- 地図表示用のdiv -->
     <div id="myMap" style="height: 600px;"></div>
 
-    <!-- サンプルフォーム -->
-    <form>
-        <label for="location">Enter Location:</label>
-        <input type="text" id="location" name="location">
-    </form>
-
     <!-- LeafletとGeoJSONの表示処理 -->
     <script>
         const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -79,6 +73,7 @@
                 }));
         }
 
+        // GeoJSONデータの読み込みとレイヤーコントロールの設定
         Promise.all([
             loadGeoJSON('https://hasshi3.github.io/earthquake_station/stations.geojson'),
             loadGeoJSON('https://hasshi3.github.io/earthquake_station/geojson_data.json')
@@ -94,12 +89,14 @@
                 "GeoJSON Data": layer2
             };
 
-            // 修正: collapsed: falseで常に表示
+            // レイヤーコントロールの追加（collapsed: falseで常に表示）
             L.control.layers(baseMaps, overlayMaps, {collapsed: false, position: 'topright'}).addTo(map);
 
-            layer1.addTo(map); // デフォルトで表示するレイヤーを設定
+            // デフォルトで表示するレイヤーを追加
+            layer1.addTo(map); 
         }).catch(error => console.error('Error loading GeoJSON:', error));
     </script>
 </body>
 </html>
+
 
