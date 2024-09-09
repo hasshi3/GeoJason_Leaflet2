@@ -75,7 +75,7 @@
 
         // GeoJSONデータの読み込みとレイヤーコントロールの設定
         Promise.all([
-            loadGeoJSON('https://hasshi3.github.io/earthquake_station/stations.geojson'),
+            loadGeoJSON('https://hasshi3.github.io/earthquake_station/sukesan.json'),
             loadGeoJSON('https://hasshi3.github.io/earthquake_station/geojson_data.json')
         ]).then(layers => {
             const [layer1, layer2] = layers;
