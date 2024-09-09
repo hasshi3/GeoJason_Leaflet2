@@ -67,7 +67,7 @@
         // 2つのGeoJSONファイルを読み込み、それぞれのレイヤーとして追加
         Promise.all([
             loadGeoJSON('https://hasshi3.github.io/earthquake_station/stations.geojson'),
-            loadGeoJSON('https://hasshi3.github.io/earthquake_station/geojson_data.geojson')
+            loadGeoJSON('https://hasshi3.github.io/earthquake_station/geojson_data.json')
         ]).then(layers => {
             const [layer1, layer2] = layers;
 
