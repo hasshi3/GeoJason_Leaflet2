@@ -5,21 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoJSON from GitHub</title>
-    
-    <!-- Content Security Policy (CSP) の設定 -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' https://unpkg.com;">
-
-    <!-- LeafletのCSSファイル -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-
-    <!-- LeafletのJavaScriptファイル -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 <body>
-    <!-- 地図表示用のdiv -->
     <div id="myMap" style="height: 600px;"></div>
-
-    <!-- LeafletとGeoJSONの表示処理 -->
     <script>
         const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -28,7 +18,7 @@
         var map = L.map('myMap', {
             center: [35.1, 136.9],
             zoom: 6,
-            layers: [osm] // ベースレイヤーを設定
+            layers: [osm]
         });
 
         function onEachFeature(feature, layer) {
@@ -61,6 +51,7 @@
             }
         }
 
+        // 2つのGeoJSONファイルを読み込むための関数
         function loadGeoJSON(url) {
             return fetch(url)
                 .then(response => response.json())
@@ -73,30 +64,25 @@
                 }));
         }
 
-        // GeoJSONデータの読み込みとレイヤーコントロールの設定
+        // 2つのGeoJSONファイルを読み込み、それぞれのレイヤーとして追加
         Promise.all([
-            loadGeoJSON('https://hasshi3.github.io/earthquake_station/sukesan.json'),
-            loadGeoJSON('https://hasshi3.github.io/earthquake_station/geojson_data.json')
+            loadGeoJSON('https://hasshi3.github.io/earthquake_station/stations.geojson'),
+            loadGeoJSON('https://hasshi3.github.io/earthquake_station/sukesan.geojson')
         ]).then(layers => {
             const [layer1, layer2] = layers;
 
-            var baseMaps = {
-                "OpenStreetMap": osm
-            };
-
+            // レイヤーを地図に追加し、レイヤーコントロールを設定
             var overlayMaps = {
-                "Stations": layer1,
-                "GeoJSON Data": layer2
+                "Stations 1": layer1,
+                "Stations 2": layer2
             };
 
-            // レイヤーコントロールの追加（collapsed: falseで常に表示）
-            L.control.layers(baseMaps, overlayMaps, {collapsed: false, position: 'topright'}).addTo(map);
+            L.control.layers(null, overlayMaps).addTo(map);
 
-            // デフォルトで表示するレイヤーを追加
-            layer1.addTo(map); 
+            // デフォルトで最初のレイヤーを表示
+            layer1.addTo(map);
         }).catch(error => console.error('Error loading GeoJSON:', error));
     </script>
 </body>
 </html>
-
 
